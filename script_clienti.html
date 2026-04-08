@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Content Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F4EF;
+  --bg2:#EEEAE2;
+  --bg3:#E5E0D5;
+  --card:#FFFFFF;
+  --border:#D8D2C8;
+  --border2:#C8C2B5;
+  --text:#1A1714;
+  --text2:#6B6359;
+  --text3:#A09890;
+  --accent:#2D5016;
+  --accent2:#4A7C2A;
+  --accent-light:#EAF0E2;
+  --red:#8B2A1A;
+  --red-light:#F5EAE8;
+  --blue:#1A3A6B;
+  --blue-light:#E8EEF7;
+  --amber:#7A4A0A;
+  --amber-light:#F7F0E3;
+  --radius:10px;
+  --radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+  --shadow-md:0 2px 8px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.06);
+}
+
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100dvh}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100dvh;position:relative}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:230px;flex-shrink:0;
+  background:var(--card);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  box-shadow:2px 0 8px rgba(0,0,0,.03);
+}
+.sb-head{padding:20px 16px 14px}
+.sb-logo{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:16px;
+}
+.sb-logo-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;
+}
+.sb-logo-text{
+  font-family:'DM Serif Display',serif;
+  font-size:15px;color:var(--text);letter-spacing:-.01em;
+}
+.btn-nc{
+  width:100%;padding:9px 12px;
+  font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--radius);
+  cursor:pointer;text-align:left;
+  display:flex;align-items:center;gap:6px;
+  transition:background .15s, transform .1s;
+  letter-spacing:.01em;
+}
+.btn-nc:hover{background:var(--accent2)}
+.btn-nc:active{transform:scale(.98)}
+.sb-section-title{
+  font-size:10px;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--text3);
+  padding:12px 16px 6px;
+}
+.cl{flex:1;overflow-y:auto;padding:6px 8px 12px}
+.cl::-webkit-scrollbar{width:3px}
+.cl::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.ci{
+  padding:10px 12px;border-radius:var(--radius);
+  cursor:pointer;margin-bottom:2px;
+  border:1px solid transparent;
+  transition:background .12s, border-color .12s;
+}
+.ci:hover{background:var(--bg)}
+.ci.active{background:var(--accent-light);border-color:rgba(74,124,42,.25)}
+.ci-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.3}
+.ci-sub{font-size:11px;color:var(--text2);margin-top:1px}
+.ci-stat{font-size:11px;color:var(--text3);margin-top:4px;display:flex;gap:6px}
+.ci-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--accent2);display:inline-block;
+  margin-right:2px;vertical-align:middle;
+}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+
+/* ── TOPBAR ── */
+.topbar{
+  padding:16px 22px;
+  border-bottom:1px solid var(--border);
+  background:var(--card);
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;flex-wrap:wrap;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.tb-left{display:flex;flex-direction:column;gap:2px}
+.tb-name{
+  font-family:'DM Serif Display',serif;
+  font-size:18px;color:var(--text);letter-spacing:-.02em;
+}
+.tb-sub{font-size:12px;color:var(--text2)}
+.tb-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* filter pills */
+.fbar{display:flex;gap:4px;flex-wrap:wrap}
+.fb{
+  font-size:11px;font-weight:500;
+  padding:5px 11px;border-radius:20px;
+  border:1px solid var(--border);
+  background:transparent;color:var(--text2);
+  cursor:pointer;transition:all .12s;font-family:'DM Sans',sans-serif;
+}
+.fb:hover{background:var(--bg2);border-color:var(--border2)}
+.fb.on{background:var(--text);color:#fff;border-color:var(--text)}
+
+/* buttons */
+.btn-ar{
+  font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+  padding:7px 14px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--radius);
+  cursor:pointer;white-space:nowrap;
+  transition:background .15s, transform .1s;
+  letter-spacing:.01em;
+}
+.btn-ar:hover{background:var(--accent2)}
+.btn-ar:active{transform:scale(.97)}
+.btn-notes{
+  font-size:12px;font-family:'DM Sans',sans-serif;
+  padding:7px 12px;background:none;
+  border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;color:var(--text2);transition:all .12s;
+}
+.btn-notes:hover{background:var(--bg2);border-color:var(--border2)}
+
+/* ── CONTENT AREA ── */
+.ca{padding:20px 22px;overflow-y:auto}
+.ca::-webkit-scrollbar{width:4px}
+.ca::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+
+/* progress */
+.prog-wrap{
+  background:var(--card);border-radius:var(--radius-lg);
+  padding:14px 18px;margin-bottom:16px;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow);
+}
+.prog-row{display:flex;justify-content:space-between;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:8px}
+.prog-row span:last-child{color:var(--accent);font-weight:600}
+.prog-bar{height:4px;background:var(--bg2);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+
+/* notes */
+.notes-box{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.notes-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.notes-box textarea{
+  width:100%;background:none;border:none;outline:none;
+  font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;
+  resize:none;min-height:56px;line-height:1.7;
+}
+
+/* ── REEL CARD ── */
+.reel-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-lg);margin-bottom:10px;
+  overflow:hidden;box-shadow:var(--shadow);
+  transition:box-shadow .15s, border-color .15s;
+}
+.reel-card:hover{box-shadow:var(--shadow-md);border-color:var(--border2)}
+.rc-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer}
+
+.rc-check{
+  width:20px;height:20px;border-radius:50%;
+  border:2px solid var(--border2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .15s;
+}
+.rc-check:hover{border-color:var(--accent2)}
+.rc-check.done{background:var(--accent);border-color:var(--accent)}
+.rc-check.done::after{
+  content:'';display:block;width:5px;height:9px;
+  border:2px solid #fff;border-top:none;border-left:none;
+  transform:rotate(45deg) translate(-1px,-1px);
+}
+
+.rc-meta{flex:1;min-width:0}
+.rc-fmt{
+  font-size:10px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;margin-bottom:2px;
+}
+.rc-idea{
+  font-size:13px;font-weight:500;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.rc-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+
+/* status badges */
+.sbadge{
+  font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;
+  padding:4px 10px;border-radius:20px;cursor:pointer;
+  white-space:nowrap;border:none;letter-spacing:.01em;
+  transition:opacity .12s;
+}
+.sbadge:hover{opacity:.8}
+.s-todo{background:var(--bg2);color:var(--text2)}
+.s-script{background:var(--blue-light);color:var(--blue)}
+.s-recorded{background:var(--amber-light);color:var(--amber)}
+.s-published{background:var(--accent-light);color:var(--accent)}
+
+.ic-btn{
+  background:none;border:none;cursor:pointer;
+  color:var(--text3);font-size:13px;
+  padding:3px 5px;line-height:1;border-radius:6px;
+  transition:all .12s;
+}
+.ic-btn:hover{color:var(--red);background:var(--red-light)}
+
+/* reel body sections */
+.rc-body{border-top:1px solid var(--border)}
+.section-row{border-bottom:1px solid var(--border)}
+.section-row:last-child{border-bottom:none}
+.sec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 16px;cursor:pointer;user-select:none;
+  transition:background .1s;
+}
+.sec-head:hover{background:var(--bg)}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3)}
+.sec-arrow{font-size:11px;color:var(--text3);transition:transform .2s}
+.sec-arrow.open{transform:rotate(180deg)}
+.sec-content{padding:0 14px 12px}
+.sec-content textarea{
+  width:100%;background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:10px 12px;font-size:13px;color:var(--text);
+  font-family:'DM Sans',sans-serif;resize:none;outline:none;
+  line-height:1.7;overflow:hidden;min-height:40px;
+  transition:border-color .12s;
+}
+.sec-content textarea:focus{border-color:var(--accent2);background:var(--card)}
+
+/* ── EMPTY STATE ── */
+.empty{
+  text-align:center;padding:80px 20px;
+  color:var(--text3);font-size:13px;line-height:1.8;
+}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.5}
+.empty strong{display:block;font-size:15px;color:var(--text2);font-weight:500;margin-bottom:4px}
+
+/* ── MODAL ── */
+.modal-wrap{
+  position:fixed;inset:0;
+  background:rgba(26,23,20,.45);
+  backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;padding:16px;
+  animation:fadeIn .15s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--card);
+  border-radius:var(--radius-lg);
+  padding:24px;width:360px;max-width:100%;
+  border:1px solid var(--border);
+  box-shadow:0 8px 40px rgba(0,0,0,.18);
+  animation:slideUp .18s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{
+  font-family:'DM Serif Display',serif;
+  font-size:18px;color:var(--text);
+  margin-bottom:18px;letter-spacing:-.01em;
+}
+.field-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:block}
+.modal input,.modal textarea,.modal select{
+  width:100%;padding:9px 11px;
+  border:1px solid var(--border);border-radius:var(--radius);
+  font-size:13px;background:var(--bg);color:var(--text);
+  margin-bottom:12px;font-family:'DM Sans',sans-serif;outline:none;
+  transition:border-color .12s, background .12s;
+  appearance:none;
+}
+.modal select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23A09890' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+  padding-right:28px;
+}
+.modal textarea{resize:none;height:72px}
+.modal input:focus,.modal textarea:focus,.modal select:focus{border-color:var(--accent2);background:var(--card)}
+.modal-hint{font-size:11px;color:var(--text3);margin-bottom:12px;margin-top:-8px;line-height:1.5}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.btn-cancel{
+  font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;
+  padding:7px 16px;background:none;
+  border:1px solid var(--border);border-radius:var(--radius);
+  cursor:pointer;color:var(--text2);transition:all .12s;
+}
+.btn-cancel:hover{background:var(--bg2)}
+.btn-ok{
+  font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;
+  padding:7px 18px;background:var(--accent);
+  border:none;border-radius:var(--radius);
+  cursor:pointer;color:#fff;letter-spacing:.01em;
+  transition:background .15s;
+}
+.btn-ok:hover{background:var(--accent2)}
+
+/* formati editor */
+.fmt-list{margin-bottom:12px}
+.fmt-item{
+  display:flex;align-items:center;gap:6px;margin-bottom:6px;
+}
+.fmt-item input{
+  flex:1;margin-bottom:0;
+  font-size:12px;padding:7px 10px;
+}
+.fmt-item .ic-btn{font-size:12px;padding:5px 7px;flex-shrink:0}
+.btn-add-fmt{
+  width:100%;padding:7px;font-size:12px;font-family:'DM Sans',sans-serif;
+  background:none;border:1px dashed var(--border2);border-radius:var(--radius);
+  color:var(--text2);cursor:pointer;transition:all .12s;margin-bottom:12px;
+}
+.btn-add-fmt:hover{background:var(--bg2);border-color:var(--border)}
+.modal-divider{height:1px;background:var(--border);margin:12px 0 14px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid var(--border);max-height:none}
+  .sb-head{padding:12px}
+  .sb-logo{display:none}
+  .sb-section-title{display:none}
+  .cl{display:flex;gap:6px;flex-direction:row;padding:8px;overflow-x:auto;overflow-y:hidden}
+  .cl::-webkit-scrollbar{height:0}
+  .ci{white-space:nowrap;flex-shrink:0;margin-bottom:0;padding:8px 12px}
+  .ci-stat{display:none}
+  .topbar{padding:12px 14px}
+  .tb-name{font-size:15px}
+  .ca{padding:14px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-logo-icon">🎬</div>
+        <div class="sb-logo-text">Content Tracker</div>
+      </div>
+      <button class="btn-nc" onclick="openNewClient()">
+        <span style="font-size:16px;line-height:1">+</span> Nuovo cliente
+      </button>
+    </div>
+    <div class="sb-section-title">Clienti</div>
+    <div class="cl" id="clientList"></div>
+  </div>
+
+  <div class="main">
+    <div class="topbar" id="topbar" style="display:none">
+      <div class="tb-left">
+        <div class="tb-name" id="tbName"></div>
+        <div class="tb-sub" id="tbSub"></div>
+      </div>
+      <div class="tb-right">
+        <button class="btn-notes" onclick="toggleNotes()">Note cliente</button>
+        <div class="fbar" id="fbar">
+          <button class="fb on" onclick="setFilter('tutti',this)">Tutti</button>
+          <button class="fb" onclick="setFilter('da fare',this)">Da fare</button>
+          <button class="fb" onclick="setFilter('script',this)">Script</button>
+          <button class="fb" onclick="setFilter('registrato',this)">Registrato</button>
+          <button class="fb" onclick="setFilter('pubblicato',this)">Pubblicato</button>
+        </div>
+        <button class="btn-ar" onclick="openNewReel()">+ Reel</button>
+      </div>
+    </div>
+    <div class="ca" id="contentArea">
+      <div class="empty">
+        <div class="empty-icon">🎬</div>
+        <strong>Nessun cliente selezionato</strong>
+        Crea un cliente dalla barra laterale per iniziare.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const STATUSES=['da fare','script','registrato','pubblicato'];
+const SL={'da fare':'Da fare','script':'Script pronto','registrato':'Registrato','pubblicato':'Pubblicato'};
+const SC={'da fare':'s-todo','script':'s-script','registrato':'s-recorded','pubblicato':'s-published'};
+const FCOLORS_DEFAULT=['#185FA5','#854F0B','#3B6D11','#993556','#534AB7','#7A4A8B','#2D6B6B'];
+
+let data={clients:[],reels:[],formats:['Guardiamoci allo Specchio','Come si Abbina','Linda Parla','Consulenza','Mood Podcast']};
+let activeClient=null;
+let activeFilter='tutti';
+let showNotes=false;
+let openSections={};
+
+function fmtColor(fmt){
+  const idx=data.formats.indexOf(fmt);
+  return FCOLORS_DEFAULT[idx%FCOLORS_DEFAULT.length]||'#555';
+}
+
+function save(){try{localStorage.setItem('ctrk2',JSON.stringify(data));}catch(e){}}
+function load(){
+  try{const r=localStorage.getItem('ctrk2');if(r)data=JSON.parse(r);}catch(e){}
+  if(!data.clients)data.clients=[];
+  if(!data.reels)data.reels=[];
+  if(!data.formats||!data.formats.length)data.formats=['Guardiamoci allo Specchio','Come si Abbina','Linda Parla','Consulenza','Mood Podcast'];
+  renderSidebar();
+  if(data.clients.length)selectClient(data.clients[0].id);
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+/* ── SIDEBAR ── */
+function renderSidebar(){
+  const el=document.getElementById('clientList');
+  if(!data.clients.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:4px 6px">Nessun cliente</div>';
+    return;
+  }
+  el.innerHTML=data.clients.map(c=>{
+    const reels=data.reels.filter(r=>r.clientId===c.id);
+    const pub=reels.filter(r=>r.status==='pubblicato').length;
+    const tot=reels.length;
+    return `<div class="ci${activeClient===c.id?' active':''}" onclick="selectClient('${c.id}')">
+      <div class="ci-name">${esc(c.name)}</div>
+      ${c.subtitle?`<div class="ci-sub">${esc(c.subtitle)}</div>`:''}
+      <div class="ci-stat">
+        <span><span class="ci-dot"></span>${tot} reel</span>
+        <span>${pub} pubbl.</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectClient(id){
+  activeClient=id;
+  activeFilter='tutti';
+  showNotes=false;
+  renderSidebar();
+  renderContent();
+  const c=data.clients.find(x=>x.id===id);
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('tbName').textContent=c.name;
+  document.getElementById('tbSub').textContent=c.subtitle||'';
+  document.querySelectorAll('.fb').forEach(b=>b.classList.toggle('on',b.textContent==='Tutti'));
+}
+
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderContent();
+}
+function toggleNotes(){showNotes=!showNotes;renderContent();}
+
+/* ── CONTENT ── */
+function renderContent(){
+  if(!activeClient)return;
+  const c=data.clients.find(x=>x.id===activeClient);
+  let reels=data.reels.filter(r=>r.clientId===activeClient);
+  if(activeFilter!=='tutti')reels=reels.filter(r=>r.status===activeFilter);
+  const tot=data.reels.filter(r=>r.clientId===activeClient).length;
+  const pub=data.reels.filter(r=>r.clientId===activeClient&&r.status==='pubblicato').length;
+  const pct=tot?Math.round(pub/tot*100):0;
+
+  let html=`<div class="prog-wrap">
+    <div class="prog-row"><span>${pub} / ${tot} reel pubblicati</span><span>${pct}%</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+  </div>`;
+
+  if(showNotes){
+    html+=`<div class="notes-box">
+      <div class="notes-label">Note cliente</div>
+      <textarea placeholder="Tono di voce, formati abituali, info utili..." oninput="updateClientNotes('${c.id}',this.value)">${c.notes||''}</textarea>
+    </div>`;
+  }
+
+  if(!reels.length){
+    html+=`<div class="empty">
+      <div class="empty-icon">✨</div>
+      <strong>Nessun reel${activeFilter!=='tutti'?' in questa fase':''}</strong>
+      Aggiungine uno con il pulsante + Reel
+    </div>`;
+  } else {
+    html+=reels.map(r=>reelCard(r)).join('');
+  }
+  document.getElementById('contentArea').innerHTML=html;
+  document.querySelectorAll('[data-ta]').forEach(ta=>autoResize(ta));
+}
+
+function reelCard(r){
+  const col=fmtColor(r.format);
+  const isDone=r.status==='pubblicato';
+  const open=openSections[r.id]||{spunti:true,script:false,note:false};
+  return `<div class="reel-card" id="rc_${r.id}">
+    <div class="rc-head">
+      <div class="rc-check${isDone?' done':''}" onclick="cycleStatus('${r.id}');event.stopPropagation()"></div>
+      <div class="rc-meta">
+        <div class="rc-fmt" style="color:${col}">${esc(r.format)}</div>
+        <div class="rc-idea">${esc(r.idea)}</div>
+      </div>
+      <div class="rc-right">
+        <span class="sbadge ${SC[r.status]}" onclick="cycleStatus('${r.id}');event.stopPropagation()">${SL[r.status]}</span>
+        <button class="ic-btn" onclick="deleteReel('${r.id}');event.stopPropagation()" title="Elimina">✕</button>
+      </div>
+    </div>
+    <div class="rc-body">
+      ${secRow(r,'spunti','Spunti','Argomenti, angoli, idee da sviluppare...',open.spunti)}
+      ${secRow(r,'script','Script','Testo completo del reel...',open.script)}
+      ${secRow(r,'note','Note di ripresa','Setting, prodotti da usare, abbigliamento...',open.note)}
+    </div>
+  </div>`;
+}
+
+function secRow(r,field,label,placeholder,isOpen){
+  return `<div class="section-row">
+    <div class="sec-head" onclick="toggleSec('${r.id}','${field}')">
+      <span class="sec-label">${label}</span>
+      <span class="sec-arrow${isOpen?' open':''}">▾</span>
+    </div>
+    ${isOpen?`<div class="sec-content">
+      <textarea data-ta placeholder="${placeholder}" oninput="updateField('${r.id}','${field}',this.value);autoResize(this)">${r[field]||''}</textarea>
+    </div>`:''}
+  </div>`;
+}
+
+function toggleSec(rid,field){
+  if(!openSections[rid])openSections[rid]={spunti:true,script:false,note:false};
+  openSections[rid][field]=!openSections[rid][field];
+  renderContent();
+}
+function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
+
+function cycleStatus(id){
+  const r=data.reels.find(x=>x.id===id);
+  const idx=STATUSES.indexOf(r.status);
+  r.status=STATUSES[(idx+1)%STATUSES.length];
+  save();renderContent();renderSidebar();
+}
+function updateField(id,field,val){const r=data.reels.find(x=>x.id===id);r[field]=val;save();}
+function updateClientNotes(id,val){const c=data.clients.find(x=>x.id===id);c.notes=val;save();}
+function deleteReel(id){
+  if(!confirm('Eliminare questo reel?'))return;
+  data.reels=data.reels.filter(x=>x.id!==id);
+  delete openSections[id];
+  save();renderContent();renderSidebar();
+}
+
+/* ── MODAL: NUOVO CLIENTE ── */
+function openNewClient(){
+  showModal(`<div class="modal-title">Nuovo cliente</div>
+    <label class="field-label">Nome</label>
+    <input id="nc_n" placeholder="Es: Lulù Lab" />
+    <label class="field-label">Sottotitolo</label>
+    <input id="nc_s" placeholder="Es: abbigliamento donna" />
+    <label class="field-label">Note iniziali</label>
+    <textarea id="nc_no" placeholder="Tono di voce, note generali..."></textarea>
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeModal()">Annulla</button>
+      <button class="btn-ok" onclick="addClient()">Crea cliente</button>
+    </div>`);
+  setTimeout(()=>document.getElementById('nc_n').focus(),50);
+}
+
+/* ── MODAL: NUOVO REEL (con formati modificabili) ── */
+function openNewReel(){
+  if(!activeClient)return;
+  showModal(buildReelModal());
+  setTimeout(()=>document.getElementById('nr_i').focus(),50);
+}
+
+function buildReelModal(){
+  const fmtOpts=data.formats.map(f=>`<option value="${esc(f)}">${esc(f)}</option>`).join('');
+  return `<div class="modal-title">Nuovo reel</div>
+    <label class="field-label">Formato</label>
+    <select id="nr_f">${fmtOpts}</select>
+    <div style="display:flex;gap:6px;margin-top:-8px;margin-bottom:12px">
+      <button class="btn-add-fmt" style="margin-bottom:0" onclick="showFmtEditor()">✏️ Modifica formati</button>
+    </div>
+    <label class="field-label">Idea / titolo</label>
+    <input id="nr_i" placeholder="Di cosa parla questo reel?" />
+    <div class="mbtns">
+      <button class="btn-cancel" onclick="closeModal()">Annulla</button>
+      <button class="btn-ok" onclick="addReel()">Aggiungi</button>
+    </div>`;
+}
+
+function showFmtEditor(){
+  showModal(buildFmtEditorModal());
+}
+
+function buildFmtEditorModal(){
+  const items=data.formats.map((f,i)=>`
+    <div class="fmt-item" id="fmti_${i}">
+      <input value="${esc(f)}" oninput="updateFmt(${i},this.value)" placeholder="Nome formato" />
+      <button class="ic-btn" onclick="deleteFmt(${i})" title="Rimuovi">✕</button>
+    </div>`).join('');
+  return `<div class="modal-title">Modifica formati</div>
+    <div class="fmt-list">${items}</div>
+    <button class="btn-add-fmt" onclick="addFmt()">+ Aggiungi formato</button>
+    <div class="modal-divider"></div>
+    <div class="mbtns">
+      <button class="btn-ok" onclick="saveFmtsAndBack()">Fatto</button>
+    </div>`;
+}
+
+function updateFmt(i,val){data.formats[i]=val;}
+function deleteFmt(i){
+  if(data.formats.length<=1){alert('Devi avere almeno un formato.');return;}
+  data.formats.splice(i,1);
+  save();
+  showModal(buildFmtEditorModal());
+}
+function addFmt(){
+  data.formats.push('Nuovo formato');
+  save();
+  showModal(buildFmtEditorModal());
+  // focus last input
+  setTimeout(()=>{
+    const inputs=document.querySelectorAll('.fmt-item input');
+    if(inputs.length){const last=inputs[inputs.length-1];last.focus();last.select();}
+  },50);
+}
+function saveFmtsAndBack(){
+  // trim empty
+  data.formats=data.formats.map(f=>f.trim()).filter(Boolean);
+  if(!data.formats.length)data.formats=['Formato 1'];
+  save();
+  showModal(buildReelModal());
+  setTimeout(()=>document.getElementById('nr_i').focus(),50);
+}
+
+function addClient(){
+  const name=document.getElementById('nc_n').value.trim();
+  if(!name)return;
+  const subtitle=document.getElementById('nc_s').value.trim();
+  const notes=document.getElementById('nc_no').value.trim();
+  const c={id:uid(),name,subtitle,notes};
+  data.clients.push(c);save();closeModal();renderSidebar();selectClient(c.id);
+}
+function addReel(){
+  const format=document.getElementById('nr_f').value;
+  const idea=document.getElementById('nr_i').value.trim();
+  if(!idea)return;
+  const r={id:uid(),clientId:activeClient,format,idea,status:'da fare',spunti:'',script:'',note:''};
+  data.reels.push(r);
+  openSections[r.id]={spunti:true,script:false,note:false};
+  save();closeModal();renderContent();renderSidebar();
+}
+
+function showModal(html){
+  closeModal();
+  const ov=document.createElement('div');
+  ov.className='modal-wrap';ov.id='modal';
+  ov.innerHTML=`<div class="modal">${html}</div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)closeModal();});
+  document.body.appendChild(ov);
+}
+function closeModal(){const m=document.getElementById('modal');if(m)m.remove();}
+
+function esc(s){
+  if(!s)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+load();
+</script>
+</body>
+</html>
